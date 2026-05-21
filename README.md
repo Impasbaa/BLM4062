@@ -27,3 +27,30 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları s
 ```bash
 git clone [https://github.com/Impasbaa/bilet-bul-django.git](https://github.com/Impasbaa/bilet-bul-django.git)
 cd bilet-bul-django
+
+**2. Sanal Ortam (Virtual Environment) Oluşturun ve Aktif Edin**
+```bash
+python -m venv venv
+# Windows için:
+venv\Scripts\activate
+# macOS/Linux için:
+source venv/bin/activate
+
+**3. Gerekli Paketleri Yükleyin**
+```bash
+pip install -r requirements.txt
+
+**4. Veritabanı Göçlerini (Migrations) Uygulayın**
+```bash
+python manage.py makemigrations
+python manage.py migrate
+
+**5. Yönetici (Superuser) Hesabı Oluşturun**
+```bash
+python manage.py createsuperuser
+
+**6. Geliştirme Sunucusunu Başlatın**
+```bash
+python manage.py runserver
+
+Tarayıcınızda http://127.0.0.1:8000/ adresine giderek uygulamayı görüntüleyebilirsiniz.
