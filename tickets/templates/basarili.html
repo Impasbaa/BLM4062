@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center text-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow border-0 p-5 rounded-4">
+            <div class="text-success mb-3" style="font-size: 80px;">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <h2 class="fw-bold text-success">İşlem Başarılı!</h2>
+            <p class="lead mt-3">Biletiniz başarıyla oluşturuldu.</p>
+            
+            <div class="bg-light p-3 rounded mt-3 text-start mb-4">
+                <p class="mb-1"><strong>Güzergah:</strong> {{ sefer.departure_city.name }} - {{ sefer.arrival_city.name }}</p>
+                <p class="mb-1"><strong>Tarih:</strong> {{ sefer.departure_time|date:"d F Y, H:i" }}</p>
+                <p class="mb-1"><strong>Koltuk:</strong> {{ koltuk_no }} Numaralı Koltuk</p>
+                <p class="mb-0"><strong>Tutar:</strong> {{ sefer.price }} TL</p>
+            </div>
+
+            {% if bilet_id %}
+                <a href="{% url 'bilet_yazdir' bilet_id %}" target="_blank" class="btn btn-warning">Bileti Görüntüle</a>
+            {% endif %}
+
+            <a href="/" class="btn btn-primary px-4 w-100">Ana Sayfaya Dön</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 p-4">
+            <h3 class="mb-4">Ödeme ve Yolcu Bilgileri</h3>
+
+            {% if hata %}
+                <div class="alert alert-danger alert-dismissible fade show fw-bold shadow-sm" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ hata }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+            
+            <div class="alert alert-info">
+                <strong>Sefer:</strong> {{ sefer.departure_city.name }} - {{ sefer.arrival_city.name }} <br>
+                <strong>Koltuk No:</strong> {{ koltuk_no }} <br>
+                <strong>Toplam Tutar:</strong> {{ sefer.price }} TL
+            </div>
+
+            <form action="{% url 'odeme' sefer.id %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="koltuk_no" value="{{ koltuk_no }}">
+                <input type="hidden" name="cinsiyet" value="{{ cinsiyet }}">
+                
+                <h5 class="mt-4 mb-3">Ödeme Yöntemi Seçiniz</h5>
+                <div class="d-flex gap-3 mb-4">
+                    <div class="form-check border rounded p-3 w-100">
+                        <input class="form-check-input ms-1" type="radio" name="payment_method" id="pay_card" value="kart" checked>
+                        <label class="form-check-label ms-4 fw-bold" for="pay_card">
+                            <i class="bi bi-credit-card"></i> Kredi / Banka Kartı
+                        </label>
+                    </div>
+                    <div class="form-check border rounded p-3 w-100">
+                        <input class="form-check-input ms-1" type="radio" name="payment_method" id="pay_cash" value="nakit">
+                        <label class="form-check-label ms-4 fw-bold" for="pay_cash">
+                            <i class="bi bi-cash-stack"></i> Nakit (Terminalde)
+                        </label>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-3">Yolcu Bilgileri</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Adınız Soyadınız</label>
+                        <input type="text" name="yolcu_isim" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">TC Kimlik No / Pasaport No</label>
+                        <input type="text" name="tc_no" id="tcNoInput" class="form-control" required>
+                        <div id="tcErrorMsg" class="invalid-feedback fw-bold"></div>
+                    </div>
+                </div>
+
+                <div id="card_details_section" class="mt-4">
+                    <h5 class="mb-3">Kart Bilgileri (Test)</h5>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Kart Numarası</label>
+                            <input type="text" id="cardNoInput" class="form-control">
+                            <div id="cardErrorMsg" class="invalid-feedback fw-bold"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" name="odeme_yap" id="satinAlBtn" class="btn btn-success btn-lg w-100 mt-4 shadow" disabled>
+                    {{ sefer.price }} TL Öde ve Bileti Kes
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const cardRadio = document.getElementById('pay_card');
+    const cashRadio = document.getElementById('pay_cash');
+    const cardSection = document.getElementById('card_details_section');
+
+    const tcInput = document.getElementById('tcNoInput');
+    const tcErrorMsg = document.getElementById('tcErrorMsg');
+    
+    const cardInput = document.getElementById('cardNoInput');
+    const cardErrorMsg = document.getElementById('cardErrorMsg');
+    
+    const satinAlBtn = document.getElementById('satinAlBtn');
+
+    function butonDurumunuGuncelle() {
+        let tcDolu = tcInput.value.trim().length > 0;
+        let kartDolu = true;
+
+        if (cardRadio.checked) {
+            kartDolu = cardInput.value.trim().length > 0;
+        }
+
+        if (tcDolu && kartDolu) {
+            satinAlBtn.disabled = false;
+        } else {
+            satinAlBtn.disabled = true;
+        }
+    }
+
+    tcInput.addEventListener('input', function() {
+        if (this.value.trim().length > 0) {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        } else {
+            this.classList.add('is-invalid');
+            this.classList.remove('is-valid');
+            tcErrorMsg.innerText = "TC Kimlik alanı boş bırakılamaz.";
+        }
+        butonDurumunuGuncelle();
+    });
+
+    cardInput.addEventListener('input', function() {
+        if (this.value.trim().length > 0) {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        } else {
+            this.classList.add('is-invalid');
+            this.classList.remove('is-valid');
+            cardErrorMsg.innerText = "Kart bilgisi boş bırakılamaz.";
+        }
+        butonDurumunuGuncelle();
+    });
+
+    function toggleCardSection() {
+        if (cashRadio.checked) {
+            cardSection.style.display = 'none';
+        } else {
+            cardSection.style.display = 'block';
+        }
+        butonDurumunuGuncelle();
+    }
+
+    cardRadio.addEventListener('change', toggleCardSection);
+    cashRadio.addEventListener('change', toggleCardSection);
+</script>
+{% endblock %}

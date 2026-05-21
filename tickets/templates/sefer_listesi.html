@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="/" class="btn btn-outline-secondary btn-sm">Geri Dön</a>
+    <h2 class="mt-3">{{ kalkis_sehir.name }} - {{ varis_sehir.name }} Arası Seferler</h2>
+    <p class="text-muted">{{ seferler.count }} sefer bulundu.</p>
+</div>
+
+<div class="row">
+    {% for sefer in seferler %}
+    <div class="col-12 mb-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="mb-1 fw-bold">{{ sefer.departure_time|date:"H:i" }}</h5>
+                    <small class="text-muted">{{ sefer.departure_time|date:"d F Y" }}</small>
+                </div>
+                
+                <div class="text-center">
+                    <div class="badge bg-info text-dark mb-1">{{ sefer.bus.bus_type }}</div>
+                    <div class="small text-muted">{{ sefer.bus.plate_number }}</div>
+                </div>
+
+                <div class="text-end">
+                    <h4 class="text-primary fw-bold mb-1">{{ sefer.price }} TL</h4>
+                    <a href="{% url 'koltuk_secimi' sefer.id %}" class="btn btn-success px-4 fw-bold">Koltuk Seç</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <h4 class="text-muted">Üzgünüz, bu kriterlere uygun sefer bulunamadı.</h4>
+        <a href="/" class="btn btn-primary mt-3">Yeni Arama Yap</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

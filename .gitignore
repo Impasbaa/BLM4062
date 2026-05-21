@@ -1,0 +1,12 @@
+# Python & Django
+__pycache__/
+*.pyc
+db.sqlite3
+media/
+
+# Sanal Ortam (Virtual Environment)
+venv/
+env/
+
+# Çevresel Değişkenler (Varsa)
+.env

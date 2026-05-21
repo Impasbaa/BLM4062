@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page { size: a5 landscape; margin: 1cm; }
+        body { font-family: sans-serif; color: #333; }
+        .ticket-box { border: 2px dashed #003580; padding: 20px; border-radius: 10px; }
+        .header { text-align: center; border-bottom: 2px solid #003580; padding-bottom: 10px; margin-bottom: 20px; }
+        .info-row { margin-bottom: 10px; font-size: 14px; }
+        .label { font-weight: bold; color: #555; }
+        .seat-number { font-size: 30px; font-weight: bold; color: #003580; float: right; }
+    </style>
+</head>
+<body>
+    <div class="ticket-box">
+        <div class="header">
+            <h1>BILET-BUL YOLCU BİLETİ</h1>
+        </div>
+        
+        <div class="seat-number">
+            No: {{ bilet.seat_number }}
+        </div>
+
+        <div class="info-row">
+            <span class="label">Yolcu Adı:</span> {{ bilet.passenger_name }}
+        </div>
+        <div class="info-row">
+            <span class="label">Güzergah:</span> {{ bilet.trip.departure_city }} -> {{ bilet.trip.arrival_city }}
+        </div>
+        <div class="info-row">
+            <span class="label">Tarih/Saat:</span> {{ bilet.trip.departure_time|date:"d.m.Y H:i" }}
+        </div>
+        <div class="info-row">
+            <span class="label">Otobüs Plaka:</span> {{ bilet.trip.bus.plate_number }}
+        </div>
+        <div class="info-row">
+            <span class="label">Cinsiyet:</span> {% if bilet.passenger_gender == 'K' %}Kadın{% else %}Erkek{% endif %}
+        </div>
+
+        <div style="margin-top: 30px; font-size: 10px; text-align: center; color: #888;">
+            İyi yolculuklar dileriz!
+        </div>
+    </div>
+</body>
+</html>

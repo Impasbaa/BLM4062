@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yolcu Bileti</title>
+    
+    <style>
+        @page {
+            size: A5 landscape;
+            margin: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            padding: 40px;
+            color: #333;
+        }
+        .bilet-kapsayici {
+            background-color: white;
+            border: 2px solid #003580;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            
+            page-break-inside: avoid; 
+        }
+        .bilet-baslik {
+            text-align: center;
+            border-bottom: 2px dashed #ccc;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            color: #003580;
+            font-weight: bold;
+        }
+        .bilet-detay {
+            font-size: 18px;
+            line-height: 1.8;
+        }
+        .yazdir-buton {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 15px;
+            background-color: #198754;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+
+        @media print {
+            body { background-color: white; padding: 0; }
+            .bilet-kapsayici { box-shadow: none; border: 1px solid #000; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <button onclick="window.print()" class="yazdir-buton no-print">Bileti Yazdır / PDF İndir</button>
+
+    <div class="bilet-kapsayici">
+        <h2 class="bilet-baslik">BİLET-BUL YOLCU BİLETİ</h2>
+        
+        <div class="bilet-detay">
+            <p><strong>Yolcu Adı:</strong> {{ bilet.passenger_name }}</p>
+            <p><strong>TC Kimlik No:</strong> {{ bilet.tc_no }}</p>
+            <p><strong>Güzergah:</strong> {{ bilet.trip.departure_city.name }} -> {{ bilet.trip.arrival_city.name }}</p>
+            <p><strong>Tarih / Saat:</strong> {{ bilet.trip.departure_time|date:"d.m.Y H:i" }}</p>
+            <p><strong>Koltuk No:</strong> <span style="font-size: 24px; font-weight: bold; color: #d9534f;">{{ bilet.seat_number }}</span> ({{ bilet.get_passenger_gender_display }})</p>
+            <p><strong>Otobüs Plaka:</strong> {{ bilet.trip.bus.plate_number }}</p>
+            <p><strong>Tutar:</strong> {{ bilet.trip.price }} TL</p>
+        </div>
+    </div>
+
+</body>
+</html>

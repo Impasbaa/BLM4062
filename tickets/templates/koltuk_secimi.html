@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .bus-map-card { border-radius: 15px; border: 1px solid #e0e0e0; position: relative; }
+    .steering-wheel { font-size: 30px; color: #6c757d; position: absolute; top: 15px; left: 15px; }
+
+    .seat-btn { 
+        height: 40px; width: 40px; border-radius: 8px; font-weight: bold; font-size: 14px;
+        display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .seat-occupied-k { background-color: #fce4ec !important; color: #c2185b !important; border: 2px solid #f8bbd0 !important; cursor: not-allowed; }
+    .seat-occupied-e { background-color: #e3f2fd !important; color: #1565c0 !important; border: 2px solid #bbdefb !important; cursor: not-allowed; }
+    .seat-available { background-color: white; color: #495057; border: 2px solid #ced4da; }
+    .seat-available:hover { border-color: #ffc107; color: #ffc107; background-color: #fffbeb; }
+    .seat-selected { background-color: #ffc107 !important; color: #212529 !important; border: 2px solid #e0a800 !important; }
+</style>
+
+<div class="row mt-4">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
+                <h4 class="fw-bold text-primary mb-3">{{ sefer.departure_city.name }} - {{ sefer.arrival_city.name }}</h4>
+                <hr>
+                <p class="mb-2"><i class="bi bi-calendar-event me-2"></i><strong>Tarih:</strong> {{ sefer.departure_time|date:"d F Y, H:i" }}</p>
+                <p class="mb-2"><i class="bi bi-bus-front me-2"></i><strong>Otobüs:</strong> {{ sefer.bus.plate_number }} ({{ sefer.bus.bus_type }})</p>
+                <p class="mb-0 mt-4 text-center">
+                    <span class="text-muted d-block mb-1">Bilet Fiyatı</span>
+                    <span class="text-success fs-2 fw-bold">{{ sefer.price }} TL</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm bus-map-card p-4 text-center">
+            
+            <div class="steering-wheel">
+                <i class="bi bi-compass"></i> 
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 mb-5 mt-2 flex-wrap" style="font-size: 13px;">
+                <div class="d-flex align-items-center"><span class="seat-btn seat-occupied-e disabled me-2"></span> Dolu (Erkek)</div>
+                <div class="d-flex align-items-center"><span class="seat-btn seat-occupied-k disabled me-2"></span> Dolu (Kadın)</div>
+                <div class="d-flex align-items-center"><span class="seat-btn seat-available disabled me-2"></span> Boş Koltuk</div>
+            </div>
+
+            <form id="anaKoltukForm" action="{% url 'odeme' sefer.id %}" method="POST">
+                {% csrf_token %}
+                
+                <input type="hidden" name="secilen_koltuk" id="secilen_koltuk_input">
+                <input type="hidden" name="secilen_cinsiyet" id="secilen_cinsiyet_input">
+
+                <div class="bus-container mx-auto my-4" style="max-width: 400px; background-color: #f8f9fa; border: 2px solid #dee2e6; border-radius: 20px; padding: 30px 10px;">
+                    <div class="text-end mb-4 pe-4 border-bottom border-secondary pb-2">
+                        <i class="bi bi-steering text-secondary fs-2"></i>
+                    </div>
+
+                    {% for satir in koltuk_matrisi %}
+                        <div class="d-flex justify-content-center mb-3">
+                            {% for koltuk in satir %}
+                                {% if koltuk == None %}
+                                    <div style="width: 45px; margin: 0 5px;"></div>
+                                {% else %}
+                                    {% if koltuk in erkek_koltuklar %}
+                                        <div class="seat-btn seat-occupied-e shadow-sm mx-1">{{ koltuk }}</div>
+                                    {% elif koltuk in kadin_koltuklar %}
+                                        <div class="seat-btn seat-occupied-k shadow-sm mx-1">{{ koltuk }}</div>
+                                    {% else %}
+                                        
+                                        <div class="dropdown d-inline-block mx-1">
+                                            
+                                            <button type="button" id="koltuk-btn-{{ koltuk }}" class="seat-btn seat-available shadow-sm" data-bs-toggle="dropdown" aria-expanded="false" onclick="saklananKoltukNo = '{{ koltuk }}'">
+                                                {{ koltuk }}
+                                            </button>
+                                            
+                                            <ul class="dropdown-menu p-2 shadow-lg border-0 text-center" style="min-width: 110px; z-index: 1050; border-radius: 12px;">
+                                                <li>
+                                                    <button type="button" class="btn btn-outline-primary btn-sm w-100 mb-2 fw-bold" onclick="cinsiyetKaydet('E')">
+                                                        <i class="bi bi-gender-male"></i> Erkek
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm w-100 fw-bold" onclick="cinsiyetKaydet('K')">
+                                                        <i class="bi bi-gender-female"></i> Kadın
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                            
+                                        </div>
+
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="text-center mt-4 mb-3">
+                    <button type="submit" id="odemeGitBtn" class="btn btn-success btn-lg px-5 fw-bold shadow-sm" disabled>
+                        Ödeme Sayfasına Geç <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                </div>
+
+            </form>
+            </div>
+    </div>
+</div>
+
+<script>
+    let saklananKoltukNo = null;
+    let oncekiSecilenButon = null;
+
+    function koltukSecisBaslat(koltukNo) {
+        saklananKoltukNo = koltukNo; 
+        document.getElementById('modalKoltukNo').innerText = koltukNo; 
+        
+        const modalElement = document.getElementById('cinsiyetModal');
+        const b5Modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        b5Modal.show(); 
+    }
+
+    function cinsiyetKaydet(cinsiyet) {
+        document.getElementById('secilen_koltuk_input').value = saklananKoltukNo;
+        document.getElementById('secilen_cinsiyet_input').value = cinsiyet;
+        
+        if (oncekiSecilenButon) {
+            oncekiSecilenButon.classList.remove('seat-selected');
+            oncekiSecilenButon.classList.add('seat-available');
+        }
+        
+        const yeniSecilenButon = document.getElementById('koltuk-btn-' + saklananKoltukNo);
+        if (yeniSecilenButon) {
+            yeniSecilenButon.classList.remove('seat-available');
+            yeniSecilenButon.classList.add('seat-selected');
+            oncekiSecilenButon = yeniSecilenButon;
+        }
+
+        document.getElementById('odemeGitBtn').disabled = false;
+
+        const modalElement = document.getElementById('cinsiyetModal');
+        const b5Modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        b5Modal.hide();
+    }
+</script>
+{% endblock %}

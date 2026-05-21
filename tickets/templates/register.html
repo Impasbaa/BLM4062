@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow border-0 p-4 rounded-4">
+            <h3 class="fw-bold text-center mb-4 text-success">Yeni Hesap Oluştur</h3>
+            
+            {% if hata %}
+                <div class="alert alert-danger">{{ hata }}</div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Kullanıcı Adı</label>
+                    <input type="text" name="username" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">E-Posta Adresi</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Şifre</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Şifre Tekrar</label>
+                    <input type="password" name="password_confirm" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100 btn-lg fw-bold shadow-sm mb-3">Kayıt İşlemini Tamamla</button>
+            </form>
+            
+            <p class="text-center mb-0 text-muted">
+                Zaten üye misiniz? <a href="{% url 'login' %}" class="text-decoration-none font-weight-bold">Giriş Yap</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
